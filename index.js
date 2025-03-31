@@ -19,5 +19,5 @@ app.use("/pet-market", petMarketRoute);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () =>
-  console.log("Servidor levantado con éxito holaa! --> http://localhost:" + PORT),
+  console.log("Servidor levantado con éxito --> http://localhost:" + PORT),
 );
