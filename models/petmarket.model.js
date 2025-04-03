@@ -15,7 +15,83 @@ const getCommunesModel = async (regionId) => {
   return rows;
 };
 
+const postRegisterModel = async ({
+  userName,
+  password,
+  email,
+  idRegion,
+  idCommune,
+  name,
+  firstSurname,
+  secondSurname,
+  street,
+  streetNumber,
+  phone,
+  urlImgProfile,
+}) => {
+  const query =
+    "WITH inserted_user AS (" +
+    "INSERT INTO users (" +
+    "user_name, " +
+    "password, " +
+    "email" +
+    ") VALUES (%L, %L, %L) RETURNING id_user) " +
+    "INSERT INTO user_profile (" +
+    "id_user, " +
+    "id_region, " +
+    "id_commune, " +
+    "name, " +
+    "first_surname, " +
+    "second_surname, " +
+    "street, " +
+    "street_number, " +
+    "phone, " +
+    "url_img_profile" +
+    ") VALUES ((SELECT id_user FROM inserted_user), %L, %L, %L, %L, %L, %L, %L, %L, %L) " +
+    "RETURNING id_user_profile";
+
+  const formattedQuery = format(
+    query,
+    userName,
+    password,
+    email,
+    idRegion,
+    idCommune,
+    name,
+    firstSurname,
+    secondSurname,
+    street,
+    streetNumber,
+    phone,
+    urlImgProfile,
+  );
+
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const postLoginModel = async (userName) => {
+  const query = "SELECT * FROM users WHERE user_name = %L";
+  const formattedQuery = format(query, userName);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const getUserProfileModel = async (userId) => {
+  const query =
+    "SELECT user_name, email, id_region, id_commune, name, first_surname, second_surname, street, street_number, phone, url_img_profile " +
+    "FROM users " +
+    "INNER JOIN user_profile ON users.id_user = user_profile.id_user " +
+    "WHERE users.id_user = %L";
+  const formattedQuery = format(query, userId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
 export const petMarketModel = {
   getRegionsModel,
   getCommunesModel,
+  postRegisterModel,
+  postLoginModel,
+  getUserProfileModel,
 };

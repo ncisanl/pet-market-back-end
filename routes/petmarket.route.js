@@ -8,4 +8,14 @@ router.get("/regions", petMarketController.getRegionsController);
 
 router.get("/communes/:regionId", petMarketController.getCommunesController);
 
+router.post("/register", petMarketController.postRegisterController);
+
+router.post("/login", petMarketController.postLoginController);
+
+router.get(
+  "/user/profile",
+  authMiddleware,
+  petMarketController.getUserProfileController,
+);
+
 export default router;
