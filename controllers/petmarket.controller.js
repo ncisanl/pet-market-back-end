@@ -148,44 +148,44 @@ const getUserProfileController = async (req, res) => {
 const updateUserProfileController = async (req, res) => {
   const { userId } = req.user;
 
-  const {
-    userName,
-    password,
-    email,
-    idRegion,
-    idCommune,
-    name,
-    firstSurname,
-    secondSurname,
-    street,
-    streetNumber,
-    phone,
-    urlImgProfile,
-  } = req.body;
-
-  await petMarketModel.updateUserProfileModel({
-    userId,
-    userName,
-    password: bcrypt.hashSync(password, 10),
-    email,
-    idRegion,
-    idCommune,
-    name,
-    firstSurname,
-    secondSurname,
-    street,
-    streetNumber,
-    phone,
-    urlImgProfile,
-  });
-
-  const updatedUserProfile = await petMarketModel.getUserProfileModel(userId);
-
-  return res.status(200).json({
-    message: "Usuario modificado exitosamente",
-    data: updatedUserProfile,
-  });
   try {
+    const {
+      userName,
+      password,
+      email,
+      idRegion,
+      idCommune,
+      name,
+      firstSurname,
+      secondSurname,
+      street,
+      streetNumber,
+      phone,
+      urlImgProfile,
+    } = req.body;
+
+    await petMarketModel.updateUserProfileModel({
+      userId,
+      userName,
+      password: bcrypt.hashSync(password, 10),
+      email,
+      idRegion,
+      idCommune,
+      name,
+      firstSurname,
+      secondSurname,
+      street,
+      streetNumber,
+      phone,
+      urlImgProfile,
+    });
+
+    const updatedUserProfile = await petMarketModel.getUserProfileModel(userId);
+
+    return res.status(200).json({
+      message: "Usuario modificado exitosamente",
+      data: updatedUserProfile,
+    });
   } catch (error) {
     console.log(error);
     if (error.code) {
