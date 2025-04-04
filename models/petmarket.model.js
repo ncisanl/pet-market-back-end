@@ -15,6 +15,20 @@ const getCommunesModel = async (regionId) => {
   return rows;
 };
 
+const getPetTypeModel = async () => {
+  const query = "SELECT * FROM pet_type";
+  const formattedQuery = format(query);
+  const { rows } = await pool.query(formattedQuery);
+  return rows;
+};
+
+const getCategoryModel = async () => {
+  const query = "SELECT * FROM category";
+  const formattedQuery = format(query);
+  const { rows } = await pool.query(formattedQuery);
+  return rows;
+};
+
 const postRegisterModel = async ({
   userName,
   password,
@@ -146,36 +160,72 @@ const updateUserProfileModel = async ({
 };
 
 const postCreatePostModel = async ({
-  id_user,
-  id_product,
+  userId,
+  categoryId,
+  productName,
+  brand,
+  weightKg,
+  price,
+  sale,
+  discountPercentage,
+  petType,
   title,
-  simple_description,
-  full_description,
+  simpleDescription,
+  fullDescription,
   stock,
   available,
+  urlImage,
 }) => {
   const query =
-    "INSERT INTO post (" +
-    "id_user, " +
-    "id_product, " +
-    "title, " +
-    "simple_description, " +
-    "full_description, " +
-    "stock, " +
-    "available, " +
-    "creation_date, " +
-    "update_date" +
-    ") VALUES (%L, %L, %L, %L, %L, %L, %L, NOW(), NOW()) RETURNING *";
+    "WITH inserted_product AS (" +
+    "INSERT INTO product (id_category, name, brand, weight_kg, price, sale, discount_percentage) " +
+    "VALUES (%L, %L, %L, %L, %L, %L, %L) " +
+    "RETURNING *" +
+    "), " +
+    "inserted_product_pet_type AS (" +
+    "INSERT INTO product_pet_type (id_product, id_pet_type)" +
+    "VALUES ((SELECT id_product FROM inserted_product), %L)" +
+    "RETURNING id_product, id_pet_type" +
+    "), " +
+    "inserted_post AS (" +
+    "INSERT INTO post (id_user, id_product, title, simple_description, full_description, stock, available) " +
+    "VALUES (%L, (SELECT id_product FROM inserted_product), %L, %L, %L, %L, %L) " +
+    "RETURNING * " +
+    "), " +
+    "inserted_post_image AS (" +
+    "INSERT INTO post_image (id_post, url_image) " +
+    "VALUES ((SELECT id_post FROM inserted_post), %L) " +
+    "RETURNING *" +
+    ")" +
+    "SELECT " +
+    "ip.id_product, ip.id_category, ip.name AS product_name, ip.brand, ip.weight_kg, ip.price, ip.sale, ip.discount_percentage, " +
+    "ippt.id_pet_type, " +
+    "ipst.id_post, ipst.id_user, ipst.title, ipst.simple_description, ipst.full_description, ipst.stock, ipst.available, ipst.creation_date AS post_creation_date, ipst.update_date AS post_update_date, " +
+    "ipi.id_post_image, ipi.url_image " +
+    "FROM inserted_product ip " +
+    "JOIN inserted_post ipst ON ipst.id_product = ip.id_product " +
+    "JOIN inserted_post_image ipi ON ipi.id_post = ipst.id_post " +
+    "JOIN inserted_product_pet_type ippt ON ippt.id_product = ip.id_product";
+
   const formattedQuery = format(
     query,
-    id_user,
-    id_product,
+    categoryId,
+    productName,
+    brand,
+    weightKg,
+    price,
+    sale,
+    discountPercentage,
+    petType,
+    userId,
     title,
-    simple_description,
-    full_description,
+    simpleDescription,
+    fullDescription,
     stock,
     available,
+    urlImage,
   );
+
   const { rows } = await pool.query(formattedQuery);
   return rows[0];
 };
@@ -216,6 +266,8 @@ const deletePostModel = async (id_post) => {
 export const petMarketModel = {
   getRegionsModel,
   getCommunesModel,
+  getPetTypeModel,
+  getCategoryModel,
   postRegisterModel,
   postLoginModel,
   getUserProfileModel,
