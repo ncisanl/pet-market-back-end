@@ -18,4 +18,18 @@ router.get(
   petMarketController.getUserProfileController,
 );
 
+router.post(
+  "/user/profile/update",
+  authMiddleware,
+  petMarketController.getUserProfileUpdateController,
+);
+
+router.post("/posts/", authMiddleware, petMarketController.postCreatePostController);
+router.put("/posts/:id_post", authMiddleware, petMarketController.updatePost);
+router.delete(
+  "/posts/:id_post",
+  authMiddleware,
+  petMarketController.deletePost,
+);
+
 export default router;

@@ -88,10 +88,81 @@ const getUserProfileModel = async (userId) => {
   return rows[0];
 };
 
+const postCreatePostModel = async ({
+  id_user,
+  id_product,
+  title,
+  simple_description,
+  full_description,
+  stock,
+  available,
+}) => {
+  const query =
+    "INSERT INTO post (" +
+    "id_user, " +
+    "id_product, " +
+    "title, " +
+    "simple_description, " +
+    "full_description, " +
+    "stock, " +
+    "available, " +
+    "creation_date, " +
+    "update_date" +
+    ") VALUES (%L, %L, %L, %L, %L, %L, %L, NOW(), NOW()) RETURNING *";
+  const formattedQuery = format(
+    query,
+    id_user,
+    id_product,
+    title,
+    simple_description,
+    full_description,
+    stock,
+    available,
+  );
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const updatePostModel = async (
+  id_post,
+  { title, simple_description, full_description, stock, available },
+) => {
+  const query =
+    "UPDATE post SET " +
+    "title = %L, " +
+    "simple_description = %L, " +
+    "full_description = %L, " +
+    "stock = %L, " +
+    "available = %L, " +
+    "update_date = NOW() " +
+    "WHERE id_post = %L RETURNING *";
+  const formattedQuery = format(
+    query,
+    title,
+    simple_description,
+    full_description,
+    stock,
+    available,
+    id_post,
+  );
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const deletePostModel = async (id_post) => {
+  const query = "DELETE FROM post WHERE id_post = %L RETURNING *";
+  const formattedQuery = format(query, id_post);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
 export const petMarketModel = {
   getRegionsModel,
   getCommunesModel,
   postRegisterModel,
   postLoginModel,
   getUserProfileModel,
+  postCreatePostModel,
+  updatePostModel,
+  deletePostModel,
 };

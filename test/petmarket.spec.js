@@ -20,7 +20,7 @@ describe("GET - /communes/:regionId", () => {
   });
 });
 
-decribe("POST - /register", () => {
+describe("POST - /register", () => {
   // it("status code 201 al registrar exitosamente un nuevo usuario", async () => {
   //   const bodyTest = {
   //     userName: "nicole",
@@ -87,5 +87,17 @@ describe("POST - /login", () => {
       .post("/pet-market/login")
       .send(bodyTest);
     expect(response.statusCode).toBe(400);
+  });
+});
+
+describe("POST - /user/profile", () => {
+  const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Im5pY28iLCJ1c2VySWQiOjEsImlhdCI6MTc0MzcwNzcyOX0.I3MypCh7NaJWQBTwZlu723pl2CU2QMHeslEXuGhz7_E";
+
+  it("status code 200 al obtener exitosamente los datos de un usuario", async () => {
+    const response = await request(app)
+        .get("/pet-market/user/profile")
+        .set("Authorization", `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
   });
 });

@@ -145,10 +145,102 @@ const getUserProfileController = async (req, res) => {
   }
 };
 
+const updateUserProfileController = async (req, res) => {
+  const { userId } = req.user;
+
+  const {
+    userName,
+    password,
+    email,
+    idRegion,
+    idCommune,
+    name,
+    firstSurname,
+    secondSurname,
+    street,
+    streetNumber,
+    phone,
+    urlImgProfile,
+  } = req.body;
+
+  //TODO: Continuar con el update profile, donde se tiene que comparar en la BBDD el uderId e ingresar el resto de datos
+
+  try {
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const postCreatePostController = async (req, res) => {
+  try {
+    const newPost = await petMarketModel.postCreatePostModel(req.body);
+
+    return res.status(201).json(newPost);
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const updatePostController = async (req, res) => {
+  const { id_post } = req.params;
+
+  try {
+    const updatedPost = await petMarketModel.updatePostModel(id_post, req.body);
+
+    if (!updatedPost) {
+      return res.status(404).json({ message: "Post no encontrado" });
+    }
+
+    return res.status(200).json(updatedPost);
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const deletePostController = async (req, res) => {
+  const { id_post } = req.params;
+
+  try {
+    const deletedPost = await petMarketModel.deletePostModel(id_post);
+
+    if (!deletedPost) {
+      return res.status(404).json({ message: "Post no encontrado" });
+    }
+
+    return res.status(200).json({ message: "Post eliminado correctamente" });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const petMarketController = {
   getRegionsController,
   getCommunesController,
   postRegisterController,
   postLoginController,
   getUserProfileController,
+  updateUserProfileController,
+  postCreatePostController,
+  updatePostController,
+  deletePostController,
 };

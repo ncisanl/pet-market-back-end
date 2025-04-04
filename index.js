@@ -16,7 +16,6 @@ app.use(express.json());
 app.use(cors());
 app.use(loggerMiddleware);
 app.use("/pet-market", petMarketRoute);
-app.use("/posts", postRoute)
 
 const PORT = process.env.PORT || 3000;
 
