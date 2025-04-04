@@ -21,15 +21,15 @@ router.get(
 router.post(
   "/user/profile/update",
   authMiddleware,
-  petMarketController.getUserProfileUpdateController,
+  petMarketController.updateUserProfileController,
 );
 
 router.post("/posts/", authMiddleware, petMarketController.postCreatePostController);
-router.put("/posts/:id_post", authMiddleware, petMarketController.updatePost);
+router.put("/posts/:id_post", authMiddleware, petMarketController.updatePostController);
 router.delete(
   "/posts/:id_post",
   authMiddleware,
-  petMarketController.deletePost,
+  petMarketController.deletePostController,
 );
 
 export default router;
