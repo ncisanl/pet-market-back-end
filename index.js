@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 import path from "path";
 import loggerMiddleware from "./middlewares/logger.js";
 import petMarketRoute from "./routes/petmarket.route.js";
-import postRoute from "./routes/post.route.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -88,6 +88,63 @@ const getUserProfileModel = async (userId) => {
   return rows[0];
 };
 
+const updateUserProfileModel = async ({
+  userId,
+  userName,
+  password,
+  email,
+  idRegion,
+  idCommune,
+  name,
+  firstSurname,
+  secondSurname,
+  street,
+  streetNumber,
+  phone,
+  urlImgProfile,
+}) => {
+  const query =
+    "WITH updated_user AS (" +
+    "UPDATE users SET " +
+    "user_name = %L, " +
+    "password = %L, " +
+    "email = %L, " +
+    "update_date = CURRENT_TIMESTAMP " +
+    "WHERE id_user = %L RETURNING id_user" +
+    ")UPDATE user_profile SET " +
+    "id_region = %L, " +
+    "id_commune = %L, " +
+    "name = %L, " +
+    "first_surname = %L, " +
+    "second_surname = %L, " +
+    "street = %L, " +
+    "street_number = %L, " +
+    "phone = %L, " +
+    "url_img_profile = %L, " +
+    "update_date = CURRENT_TIMESTAMP " +
+    "WHERE id_user = (SELECT id_user FROM updated_user) RETURNING *";
+
+  const formattedQuery = format(
+    query,
+    userName,
+    password,
+    email,
+    userId,
+    idRegion,
+    idCommune,
+    name,
+    firstSurname,
+    secondSurname,
+    street,
+    streetNumber,
+    phone,
+    urlImgProfile,
+  );
+
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
 const postCreatePostModel = async ({
   id_user,
   id_product,
@@ -162,6 +219,7 @@ export const petMarketModel = {
   postRegisterModel,
   postLoginModel,
   getUserProfileModel,
+  updateUserProfileModel,
   postCreatePostModel,
   updatePostModel,
   deletePostModel,

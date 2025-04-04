@@ -90,14 +90,42 @@ describe("POST - /login", () => {
   });
 });
 
-describe("POST - /user/profile", () => {
+describe("GET - /user/profile", () => {
   const token =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Im5pY28iLCJ1c2VySWQiOjEsImlhdCI6MTc0MzcwNzcyOX0.I3MypCh7NaJWQBTwZlu723pl2CU2QMHeslEXuGhz7_E";
 
   it("status code 200 al obtener exitosamente los datos de un usuario", async () => {
     const response = await request(app)
-        .get("/pet-market/user/profile")
-        .set("Authorization", `Bearer ${token}`);
+      .get("/pet-market/user/profile")
+      .set("Authorization", `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+  });
+});
+
+describe("POST - /user/profile/update", () => {
+  const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Im5pY28iLCJ1c2VySWQiOjEsImlhdCI6MTc0MzcwNzcyOX0.I3MypCh7NaJWQBTwZlu723pl2CU2QMHeslEXuGhz7_E";
+
+  it("status code 200 al modificar un usuario exitosamente", async () => {
+    const bodyTest = {
+      userName: "nico",
+      password: "123",
+      email: "prueba_modificacion_test@gmail.com",
+      idRegion: 1,
+      idCommune: 3,
+      name: "Nicolás",
+      firstSurname: "San Martín",
+      secondSurname: "Lorca",
+      street: "Las Rosas",
+      streetNumber: 146,
+      phone: "+56914460942",
+      urlImgProfile:
+        "https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Cat-512.png",
+    };
+    const response = await request(app)
+      .post("/user/profile/update")
+      .set("Authorization", `Bearer ${token}`)
+      .send(bodyTest);
     expect(response.statusCode).toBe(200);
   });
 });

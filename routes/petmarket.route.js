@@ -24,8 +24,16 @@ router.post(
   petMarketController.updateUserProfileController,
 );
 
-router.post("/posts/", authMiddleware, petMarketController.postCreatePostController);
-router.put("/posts/:id_post", authMiddleware, petMarketController.updatePostController);
+router.post(
+  "/posts/",
+  authMiddleware,
+  petMarketController.postCreatePostController,
+);
+router.put(
+  "/posts/:id_post",
+  authMiddleware,
+  petMarketController.updatePostController,
+);
 router.delete(
   "/posts/:id_post",
   authMiddleware,

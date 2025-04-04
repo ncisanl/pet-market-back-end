@@ -163,8 +163,28 @@ const updateUserProfileController = async (req, res) => {
     urlImgProfile,
   } = req.body;
 
-  //TODO: Continuar con el update profile, donde se tiene que comparar en la BBDD el uderId e ingresar el resto de datos
+  await petMarketModel.updateUserProfileModel({
+    userId,
+    userName,
+    password: bcrypt.hashSync(password, 10),
+    email,
+    idRegion,
+    idCommune,
+    name,
+    firstSurname,
+    secondSurname,
+    street,
+    streetNumber,
+    phone,
+    urlImgProfile,
+  });
 
+  const updatedUserProfile = await petMarketModel.getUserProfileModel(userId);
+
+  return res.status(200).json({
+    message: "Usuario modificado exitosamente",
+    data: updatedUserProfile,
+  });
   try {
   } catch (error) {
     console.log(error);
