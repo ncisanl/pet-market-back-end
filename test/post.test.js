@@ -1,20 +1,31 @@
 import { request } from "supertest";
 import { app } from "../index";
 
+describe("GET /posts", () => {
+    it("Debería obtener todos los posts", async () => {
+        const response = await request(app)
+            .get("/posts")
+            .set("Authorization", `Bearer ${token}`);
+        
+        expect(response.status).toBe(200);
+        expect(Array.isArray(response.body)).toBe(true);
+        expect(response.body.length).toBeGreaterThan(0);
+    });
+});
+
 describe("POST /posts", () => {
     it("Debería crear un nuevo post", async () => {
         const response = await request(app)
             .post("/posts")
             .send({
-                id_user: 1,
-                id_product: 2,
                 title: "Nuevo Post",
                 simple_description: "Descripción corta",
                 full_description: "Descripción completa",
                 stock: 10,
                 available: true,
             })
-            .set("Authorization",);
+            .set("Authorization", `Bearer ${token}`);
+        
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("id_post");
     });
@@ -31,7 +42,8 @@ describe("PUT /posts/:id_post", () => {
                 stock: 20,
                 available: false,
             })
-            .set("Authorization",);
+            .set("Authorization", `Bearer ${token}`);
+
         expect(response.status).toBe(200);
         expect(response.body.title).toBe("Post Actualizado");
     });
@@ -40,9 +52,10 @@ describe("PUT /posts/:id_post", () => {
 describe("DELETE /posts/:id_post", () => {
     it("Debería eliminar un post", async () => {
         const response = await request(app)
-        .delete("/posts/1")
-        .set("Authorization", );
+            .delete("/posts/1")
+            .set("Authorization", `Bearer ${token}`);
+
         expect(response.status).toBe(200);
-    expect(response.body.message).toBe("Post eliminado correctamente");
+        expect(response.body.message).toBe("Post eliminado correctamente");
     });
 });
