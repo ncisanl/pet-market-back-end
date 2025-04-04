@@ -36,6 +36,36 @@ const getCommunesController = async (req, res) => {
   }
 };
 
+const getPetTypeController = async (req, res) => {
+  try {
+    const petType = await petMarketModel.getPetTypeModel();
+
+    return res.status(200).json(petType);
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const getCategoryController = async (req, res) => {
+  try {
+    const category = await petMarketModel.getCategoryModel();
+
+    return res.status(200).json(category);
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 const postRegisterController = async (req, res) => {
   const {
     userName,
@@ -197,8 +227,43 @@ const updateUserProfileController = async (req, res) => {
 };
 
 const postCreatePostController = async (req, res) => {
+  const { userId } = req.user;
+
   try {
-    const newPost = await petMarketModel.postCreatePostModel(req.body);
+    const {
+      categoryId,
+      productName,
+      brand,
+      weightKg,
+      price,
+      sale,
+      discountPercentage,
+      petType,
+      title,
+      simpleDescription,
+      fullDescription,
+      stock,
+      available,
+      urlImage,
+    } = req.body;
+
+    const newPost = await petMarketModel.postCreatePostModel({
+      userId,
+      categoryId,
+      productName,
+      brand,
+      weightKg,
+      price,
+      sale,
+      discountPercentage,
+      petType,
+      title,
+      simpleDescription,
+      fullDescription,
+      stock,
+      available,
+      urlImage,
+    });
 
     return res.status(201).json(newPost);
   } catch (error) {
@@ -256,6 +321,8 @@ const deletePostController = async (req, res) => {
 export const petMarketController = {
   getRegionsController,
   getCommunesController,
+  getPetTypeController,
+  getCategoryController,
   postRegisterController,
   postLoginController,
   getUserProfileController,

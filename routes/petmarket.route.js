@@ -8,6 +8,10 @@ router.get("/regions", petMarketController.getRegionsController);
 
 router.get("/communes/:regionId", petMarketController.getCommunesController);
 
+router.get("/pet-type", petMarketController.getPetTypeController);
+
+router.get("/category", petMarketController.getCategoryController);
+
 router.post("/register", petMarketController.postRegisterController);
 
 router.post("/login", petMarketController.postLoginController);
@@ -25,15 +29,17 @@ router.post(
 );
 
 router.post(
-  "/posts/",
+  "/posts",
   authMiddleware,
   petMarketController.postCreatePostController,
 );
+
 router.put(
   "/posts/:id_post",
   authMiddleware,
   petMarketController.updatePostController,
 );
+
 router.delete(
   "/posts/:id_post",
   authMiddleware,
