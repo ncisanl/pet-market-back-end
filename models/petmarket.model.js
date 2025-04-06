@@ -230,37 +230,244 @@ const postCreatePostModel = async ({
   return rows[0];
 };
 
-const updatePostModel = async (
-  id_post,
-  { title, simple_description, full_description, stock, available },
-) => {
+const updatePostModel = async ({
+  postId,
+  categoryId,
+  productName,
+  brand,
+  weightKg,
+  price,
+  sale,
+  discountPercentage,
+  petType,
+  title,
+  simpleDescription,
+  fullDescription,
+  stock,
+  available,
+  urlImage,
+}) => {
   const query =
-    "UPDATE post SET " +
-    "title = %L, " +
+    "WITH updated_product AS ( " +
+    "UPDATE product " +
+    "SET id_category = %L, " +
+    "name = %L, " +
+    "brand = %L, " +
+    "weight_kg = %L, " +
+    "price = %L, " +
+    "sale = %L, " +
+    "discount_percentage = %L " +
+    "WHERE id_product = (SELECT id_product FROM post WHERE id_post = %L) " +
+    "RETURNING * " +
+    "), " +
+    "updated_product_pet_type AS ( " +
+    "UPDATE product_pet_type " +
+    "SET id_pet_type = %L " +
+    "WHERE id_product = (SELECT id_product FROM updated_product) " +
+    "RETURNING * " +
+    "), " +
+    "updated_post AS ( " +
+    "UPDATE post " +
+    "SET title = %L, " +
     "simple_description = %L, " +
     "full_description = %L, " +
     "stock = %L, " +
     "available = %L, " +
-    "update_date = NOW() " +
-    "WHERE id_post = %L RETURNING *";
+    "update_date = CURRENT_TIMESTAMP " +
+    "WHERE id_post = %L RETURNING * " +
+    "), " +
+    "updated_post_image AS ( " +
+    "UPDATE post_image " +
+    "SET url_image = %L " +
+    "WHERE id_post = %L " +
+    "RETURNING * " +
+    ") " +
+    "SELECT " +
+    "up.*, " +
+    "uppt.id_pet_type, " +
+    "uPost.*, " +
+    "upi.* " +
+    "FROM updated_product up " +
+    "JOIN updated_product_pet_type uppt ON uppt.id_product = up.id_product " +
+    "JOIN updated_post uPost ON uPost.id_product = up.id_product " +
+    "JOIN updated_post_image upi ON upi.id_post = uPost.id_post";
+
   const formattedQuery = format(
     query,
+    categoryId,
+    productName,
+    brand,
+    weightKg,
+    price,
+    sale,
+    discountPercentage,
+    postId,
+    petType,
     title,
-    simple_description,
-    full_description,
+    simpleDescription,
+    fullDescription,
     stock,
     available,
-    id_post,
+    postId,
+    urlImage,
+    postId,
   );
   const { rows } = await pool.query(formattedQuery);
   return rows[0];
 };
 
-const deletePostModel = async (id_post) => {
-  const query = "DELETE FROM post WHERE id_post = %L RETURNING *";
-  const formattedQuery = format(query, id_post);
+const deletePostModel = async (postId) => {
+  const query =
+    "WITH deleted_post_image AS ( " +
+    "DELETE FROM post_image " +
+    "WHERE id_post = %L " +
+    "RETURNING id_post " +
+    "), " +
+    "deleted_post AS ( " +
+    "DELETE FROM post " +
+    "WHERE id_post = %L " +
+    "RETURNING id_product " +
+    "), " +
+    "deleted_product_pet_type AS ( " +
+    "DELETE FROM product_pet_type " +
+    "WHERE id_product = (SELECT id_product FROM deleted_post) " +
+    "RETURNING id_product " +
+    "), " +
+    "deleted_product AS ( " +
+    "DELETE FROM product " +
+    "WHERE id_product = (SELECT id_product FROM deleted_post) " +
+    "RETURNING * " +
+    ") " +
+    "SELECT dp.* FROM deleted_product dp";
+
+  const formattedQuery = format(query, postId, postId);
   const { rows } = await pool.query(formattedQuery);
   return rows[0];
+};
+
+const getPostModel = async () => {
+  const query =
+    "SELECT " +
+    "p.id_post, " +
+    "p.id_product, " +
+    "p.title, " +
+    "p.simple_description, " +
+    "p.full_description, " +
+    "p.stock, " +
+    "p.available, " +
+    "pi.url_image, " +
+    "pr.id_category, " +
+    "pr.name AS name, " +
+    "pr.brand, " +
+    "pr.weight_kg, " +
+    "pr.price, " +
+    "pr.sale, " +
+    "pr.discount_percentage, " +
+    "ppt.id_pet_type " +
+    "FROM post p " +
+    "JOIN product pr ON pr.id_product = p.id_product " +
+    "JOIN post_image pi ON pi.id_post = p.id_post " +
+    "JOIN product_pet_type ppt ON ppt.id_product = p.id_product";
+
+  const formattedQuery = format(query);
+  const { rows } = await pool.query(formattedQuery);
+  return rows;
+};
+
+const getPostCategoryPetTypeModel = async ({ petTypeId, categoryId }) => {
+  const query =
+    "SELECT " +
+    "p.id_post, " +
+    "p.id_product, " +
+    "p.title, " +
+    "p.simple_description, " +
+    "p.full_description, " +
+    "p.stock, " +
+    "p.available, " +
+    "pi.url_image, " +
+    "pr.id_category, " +
+    "pr.name AS product_name, " +
+    "pr.brand, " +
+    "pr.weight_kg, " +
+    "pr.price, " +
+    "pr.sale, " +
+    "pr.discount_percentage, " +
+    "ppt.id_pet_type " +
+    "FROM post p " +
+    "JOIN product pr ON pr.id_product = p.id_product " +
+    "JOIN post_image pi ON pi.id_post = p.id_post " +
+    "JOIN product_pet_type ppt ON ppt.id_product = p.id_product " +
+    "WHERE ppt.id_pet_type = %L " +
+    "AND pr.id_category = %L";
+
+  const formattedQuery = format(query, petTypeId, categoryId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows;
+};
+
+const postAddPostFavoriteModel = async ({ userId, postId }) => {
+  const query =
+    "WITH inserted_favorite AS ( " +
+    "INSERT INTO favorite (id_user) " +
+    "VALUES (%L) " +
+    "RETURNING id_favorite " +
+    ") " +
+    "INSERT INTO post_favorite (id_favorite, id_post, favorite) " +
+    "VALUES ((SELECT id_favorite FROM inserted_favorite), %L, TRUE) " +
+    "RETURNING *";
+
+  const formattedQuery = format(query, userId, postId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const deletePostFavoriteModel = async (favoriteId) => {
+  const query =
+    "WITH deleted_post_favorite AS ( " +
+    "DELETE FROM post_favorite " +
+    "WHERE id_favorite = %L " +
+    "RETURNING * " +
+    ") " +
+    "DELETE FROM favorite " +
+    "WHERE id_favorite = %L " +
+    "RETURNING *";
+
+  const formattedQuery = format(query, favoriteId, favoriteId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const getUserFavoriteModel = async (userId) => {
+  const query =
+    "SELECT " +
+    "f.id_favorite, " +
+    "pf.id_post, " +
+    "p.title, " +
+    "p.simple_description, " +
+    "p.full_description, " +
+    "p.stock, " +
+    "p.available, " +
+    "p.creation_date AS post_creation_date, " +
+    "p.update_date AS post_update_date, " +
+    "pr.id_product, " +
+    "pr.id_category, " +
+    "pr.name AS product_name, " +
+    "pr.brand, " +
+    "pr.weight_kg, " +
+    "pr.price, " +
+    "pr.sale, " +
+    "pr.discount_percentage, " +
+    "pf.favorite AS post_favorite, " +
+    "pf.creation_date AS pf_creation_date, " +
+    "pf.update_date AS pf_update_date " +
+    "FROM favorite f " +
+    "JOIN post_favorite pf ON pf.id_favorite = f.id_favorite " +
+    "JOIN post p ON p.id_post = pf.id_post " +
+    "JOIN product pr ON pr.id_product = p.id_product " +
+    "WHERE f.id_user = %L";
+  const formattedQuery = format(query, userId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows;
 };
 
 export const petMarketModel = {
@@ -275,4 +482,9 @@ export const petMarketModel = {
   postCreatePostModel,
   updatePostModel,
   deletePostModel,
+  getPostModel,
+  getPostCategoryPetTypeModel,
+  postAddPostFavoriteModel,
+  deletePostFavoriteModel,
+  getUserFavoriteModel,
 };

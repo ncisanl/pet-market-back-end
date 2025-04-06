@@ -35,15 +35,41 @@ router.post(
 );
 
 router.put(
-  "/posts/:id_post",
+  "/posts/:postId",
   authMiddleware,
   petMarketController.updatePostController,
 );
 
 router.delete(
-  "/posts/:id_post",
+  "/posts/:postId",
   authMiddleware,
   petMarketController.deletePostController,
+);
+
+router.get("/posts", authMiddleware, petMarketController.getPostController);
+
+router.get(
+  "/posts/pet-type/:petTypeId/category/:categoryId",
+  authMiddleware,
+  petMarketController.getPostCategoryPetTypeController,
+);
+
+router.post(
+  "/posts/:postId/favorite",
+  authMiddleware,
+  petMarketController.postAddPostFavoriteController,
+);
+
+router.delete(
+  "/posts/favorite/:favoriteId",
+  authMiddleware,
+  petMarketController.deletePostFavoriteController,
+);
+
+router.get(
+  "/user/favorite",
+  authMiddleware,
+  petMarketController.getUserFavoriteController,
 );
 
 export default router;

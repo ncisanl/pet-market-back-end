@@ -277,10 +277,43 @@ const postCreatePostController = async (req, res) => {
 };
 
 const updatePostController = async (req, res) => {
-  const { id_post } = req.params;
+  const { postId } = req.params;
 
   try {
-    const updatedPost = await petMarketModel.updatePostModel(id_post, req.body);
+    const {
+      categoryId,
+      productName,
+      brand,
+      weightKg,
+      price,
+      sale,
+      discountPercentage,
+      petType,
+      title,
+      simpleDescription,
+      fullDescription,
+      stock,
+      available,
+      urlImage,
+    } = req.body;
+
+    const updatedPost = await petMarketModel.updatePostModel({
+      postId,
+      categoryId,
+      productName,
+      brand,
+      weightKg,
+      price,
+      sale,
+      discountPercentage,
+      petType,
+      title,
+      simpleDescription,
+      fullDescription,
+      stock,
+      available,
+      urlImage,
+    });
 
     if (!updatedPost) {
       return res.status(404).json({ message: "Post no encontrado" });
@@ -298,16 +331,116 @@ const updatePostController = async (req, res) => {
 };
 
 const deletePostController = async (req, res) => {
-  const { id_post } = req.params;
+  const { postId } = req.params;
 
   try {
-    const deletedPost = await petMarketModel.deletePostModel(id_post);
+    const deletedPost = await petMarketModel.deletePostModel(postId);
 
     if (!deletedPost) {
       return res.status(404).json({ message: "Post no encontrado" });
     }
 
     return res.status(200).json({ message: "Post eliminado correctamente" });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const getPostController = async (req, res) => {
+  try {
+    const posts = await petMarketModel.getPostModel();
+
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const getPostCategoryPetTypeController = async (req, res) => {
+  const { petTypeId, categoryId } = req.params;
+
+  try {
+    const posts = await petMarketModel.getPostCategoryPetTypeModel({
+      petTypeId,
+      categoryId,
+    });
+
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const postAddPostFavoriteController = async (req, res) => {
+  const { userId } = req.user;
+  const { postId } = req.params;
+
+  try {
+    const newPostFavorite = await petMarketModel.postAddPostFavoriteModel({
+      userId,
+      postId,
+    });
+
+    return res.status(201).json({
+      favoriteId: newPostFavorite.id_favorite,
+      postId: newPostFavorite.id_post,
+    });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const deletePostFavoriteController = async (req, res) => {
+  const { favoriteId } = req.params;
+
+  try {
+    const deletedPostFavorite =
+      await petMarketModel.deletePostFavoriteModel(favoriteId);
+
+    if (!deletedPostFavorite) {
+      return res.status(404).json({ message: "Post no encontrado" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Favorito eliminado correctamente" });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const getUserFavoriteController = async (req, res) => {
+  const { userId } = req.user;
+
+  try {
+    const postsFavorite = await petMarketModel.getUserFavoriteModel(userId);
+
+    return res.status(200).json(postsFavorite);
   } catch (error) {
     console.log(error);
     if (error.code) {
@@ -330,4 +463,9 @@ export const petMarketController = {
   postCreatePostController,
   updatePostController,
   deletePostController,
+  getPostController,
+  getPostCategoryPetTypeController,
+  postAddPostFavoriteController,
+  deletePostFavoriteController,
+  getUserFavoriteController,
 };
