@@ -388,7 +388,7 @@ const getPostCategoryPetTypeController = async (req, res) => {
 
 const postAddPostFavoriteController = async (req, res) => {
   const { userId } = req.user;
-  const { postId } = req.params;
+  const { postId } = req.body;
 
   try {
     const newPostFavorite = await petMarketModel.postAddPostFavoriteModel({
@@ -451,6 +451,153 @@ const getUserFavoriteController = async (req, res) => {
   }
 };
 
+const postCreateCartController = async (req, res) => {
+  const { userId } = req.user;
+  const { postId, quantity } = req.body;
+
+  try {
+    const newCart = await petMarketModel.postCreateCartModel({
+      userId,
+      postId,
+      quantity,
+    });
+
+    return res.status(201).json({
+      cartId: newCart.id_cart,
+      postId: newCart.id_post,
+      quantity: newCart.quantity,
+    });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const postAddPostCartController = async (req, res) => {
+  const { cartId } = req.params;
+  const { postId, quantity } = req.body;
+
+  try {
+    const newPostCart = await petMarketModel.postAddPostCartModel({
+      cartId,
+      postId,
+      quantity,
+    });
+
+    return res.status(201).json({
+      cartId: newPostCart.id_cart,
+      postId: newPostCart.id_post,
+      quantity: newPostCart.quantity,
+    });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const updatePostCartController = async (req, res) => {
+  const { cartId, postId, quantity } = req.params;
+
+  try {
+    const updatedPostCart = await petMarketModel.updatePostCartModel({
+      cartId,
+      postId,
+      quantity,
+    });
+
+    if (!updatedPostCart) {
+      return res
+        .status(404)
+        .json({ message: "Post en el carrito no encontrado" });
+    }
+
+    return res.status(200).json({
+      cartId: updatedPostCart.id_cart,
+      postId: updatedPostCart.id_post,
+      quantity: updatedPostCart.quantity,
+    });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const deletePostCartController = async (req, res) => {
+  const { cartId, postId } = req.params;
+
+  try {
+    const deletedPostCart = await petMarketModel.deletePostCartModel({
+      cartId,
+      postId,
+    });
+
+    if (!deletedPostCart) {
+      return res.status(404).json({ message: "Post no encontrado" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Post eliminado del carrito correctamente" });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const deleteCartController = async (req, res) => {
+  const { cartId } = req.params;
+
+  try {
+    const deletedCart = await petMarketModel.deleteCartModel(cartId);
+
+    if (!deletedCart) {
+      return res.status(404).json({ message: "Post no encontrado" });
+    }
+
+    return res.status(200).json({ message: "Carrito eliminado correctamente" });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const getCartPostController = async (req, res) => {
+  const { userId } = req.user;
+
+  try {
+    const cartPosts = await petMarketModel.getCartPostModel(userId);
+
+    return res.status(200).json(cartPosts);
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const petMarketController = {
   getRegionsController,
   getCommunesController,
@@ -468,4 +615,10 @@ export const petMarketController = {
   postAddPostFavoriteController,
   deletePostFavoriteController,
   getUserFavoriteController,
+  postCreateCartController,
+  postAddPostCartController,
+  updatePostCartController,
+  deletePostCartController,
+  deleteCartController,
+  getCartPostController,
 };

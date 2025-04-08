@@ -470,6 +470,117 @@ const getUserFavoriteModel = async (userId) => {
   return rows;
 };
 
+const postCreateCartModel = async ({ userId, postId, quantity = 1 }) => {
+  const query =
+    "WITH inserted_cart AS ( " +
+    "INSERT INTO cart (id_user) " +
+    "VALUES (%L) " +
+    "RETURNING id_cart " +
+    ") " +
+    "INSERT INTO post_cart (id_cart, id_post, quantity) " +
+    "VALUES ((SELECT id_cart FROM inserted_cart), %L, %L) " +
+    "RETURNING *";
+
+  const formattedQuery = format(query, userId, postId, quantity);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const postAddPostCartModel = async ({ cartId, postId, quantity = 1 }) => {
+  const query =
+    "INSERT INTO post_cart (" +
+    "id_cart, " +
+    "id_post, " +
+    "quantity" +
+    ") " +
+    "VALUES (%L, %L, %L) " +
+    "RETURNING *";
+
+  const formattedQuery = format(query, cartId, postId, quantity);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const updatePostCartModel = async ({ cartId, postId, quantity }) => {
+  const query =
+    "UPDATE post_cart " +
+    "SET quantity = %L, " +
+    "update_date = CURRENT_TIMESTAMP " +
+    "WHERE id_cart = %L AND id_post = %L " +
+    "RETURNING *";
+
+  const formattedQuery = format(query, quantity, cartId, postId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const deletePostCartModel = async ({ cartId, postId }) => {
+  const query =
+    "DELETE FROM post_cart " +
+    "WHERE id_cart = %L AND id_post = %L " +
+    "RETURNING *";
+
+  const formattedQuery = format(query, cartId, postId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const deleteCartModel = async (cartId) => {
+  const query =
+    "WITH deleted_post_cart AS ( " +
+    "DELETE FROM post_cart " +
+    "WHERE id_cart = %L " +
+    "RETURNING * " +
+    ") " +
+    "DELETE FROM cart " +
+    "WHERE id_cart = %L " +
+    "RETURNING *";
+
+  const formattedQuery = format(query, cartId, cartId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
+const getCartPostModel = async (userId) => {
+  const query =
+    "SELECT " +
+    "c.id_cart, " +
+    "c.id_user, " +
+    "c.creation_date AS cart_creation_date, " +
+    "pc.id_post, " +
+    "pc.quantity, " +
+    "pc.creation_date AS post_cart_creation, " +
+    "pc.update_date AS post_cart_update, " +
+    "p.title, " +
+    "p.simple_description, " +
+    "p.full_description, " +
+    "p.stock, " +
+    "p.available, " +
+    "p.creation_date AS post_creation_date, " +
+    "p.update_date AS post_update_date, " +
+    "pr.id_product, " +
+    "pr.id_category, " +
+    "pr.name AS product_name, " +
+    "pr.brand, " +
+    "pr.weight_kg, " +
+    "pr.price, " +
+    "pr.sale, " +
+    "pr.discount_percentage, " +
+    "ppt.id_pet_type, " +
+    "pi.url_image " +
+    "FROM cart c " +
+    "JOIN post_cart pc ON c.id_cart = pc.id_cart " +
+    "JOIN post p ON pc.id_post = p.id_post " +
+    "JOIN product pr ON p.id_product = pr.id_product " +
+    "JOIN product_pet_type ppt ON pr.id_product = ppt.id_product " +
+    "LEFT JOIN post_image pi ON p.id_post = pi.id_post " +
+    "WHERE c.id_user = %L";
+
+  const formattedQuery = format(query, userId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows;
+};
+
 export const petMarketModel = {
   getRegionsModel,
   getCommunesModel,
@@ -487,4 +598,10 @@ export const petMarketModel = {
   postAddPostFavoriteModel,
   deletePostFavoriteModel,
   getUserFavoriteModel,
+  postCreateCartModel,
+  postAddPostCartModel,
+  updatePostCartModel,
+  deletePostCartModel,
+  deleteCartModel,
+  getCartPostModel,
 };
