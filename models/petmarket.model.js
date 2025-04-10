@@ -93,7 +93,7 @@ const postLoginModel = async (userName) => {
 
 const getUserProfileModel = async (userId) => {
   const query =
-    "SELECT user_name, email, id_region, id_commune, name, first_surname, second_surname, street, street_number, phone, url_img_profile " +
+    "SELECT user_name, password, email, id_region, id_commune, name, first_surname, second_surname, street, street_number, phone, url_img_profile " +
     "FROM users " +
     "INNER JOIN user_profile ON users.id_user = user_profile.id_user " +
     "WHERE users.id_user = %L";
@@ -105,7 +105,6 @@ const getUserProfileModel = async (userId) => {
 const updateUserProfileModel = async ({
   userId,
   userName,
-  password,
   email,
   idRegion,
   idCommune,
@@ -121,7 +120,6 @@ const updateUserProfileModel = async ({
     "WITH updated_user AS (" +
     "UPDATE users SET " +
     "user_name = %L, " +
-    "password = %L, " +
     "email = %L, " +
     "update_date = CURRENT_TIMESTAMP " +
     "WHERE id_user = %L RETURNING id_user" +
@@ -141,7 +139,6 @@ const updateUserProfileModel = async ({
   const formattedQuery = format(
     query,
     userName,
-    password,
     email,
     userId,
     idRegion,

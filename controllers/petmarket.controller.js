@@ -181,7 +181,6 @@ const updateUserProfileController = async (req, res) => {
   try {
     const {
       userName,
-      password,
       email,
       idRegion,
       idCommune,
@@ -197,7 +196,6 @@ const updateUserProfileController = async (req, res) => {
     await petMarketModel.updateUserProfileModel({
       userId,
       userName,
-      password: bcrypt.hashSync(password, 10),
       email,
       idRegion,
       idCommune,
@@ -214,7 +212,19 @@ const updateUserProfileController = async (req, res) => {
 
     return res.status(200).json({
       message: "Usuario modificado exitosamente",
-      data: updatedUserProfile,
+      data: {
+        userName: updatedUserProfile.user_name,
+        email: updatedUserProfile.email,
+        idRegion: updatedUserProfile.id_region,
+        idCommune: updatedUserProfile.id_commune,
+        name: updatedUserProfile.name,
+        firstSurname: updatedUserProfile.first_surname,
+        secondSurname: updatedUserProfile.second_surname,
+        street: updatedUserProfile.street,
+        streetNumber: updatedUserProfile.street_number,
+        phone: updatedUserProfile.phone,
+        urlImgProfile: updatedUserProfile.url_img_profile,
+      },
     });
   } catch (error) {
     console.log(error);
