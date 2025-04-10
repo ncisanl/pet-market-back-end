@@ -1,5 +1,6 @@
 #dependencies
 /node_module
+/.env
 
 #IDEs and editors
 /.idea
