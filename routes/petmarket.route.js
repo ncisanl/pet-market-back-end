@@ -58,12 +58,11 @@ router.delete(
 );
 
 // Obtener todos los post
-router.get("/posts", authMiddleware, petMarketController.getPostController);
+router.get("/posts", petMarketController.getPostController);
 
 // Obtener post segun tipo de mascota y categoria
 router.get(
   "/posts/pet-type/:petTypeId/category/:categoryId",
-  authMiddleware,
   petMarketController.getPostCategoryPetTypeController,
 );
 
