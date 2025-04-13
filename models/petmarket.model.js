@@ -519,6 +519,18 @@ const postCreateCartModel = async ({ userId, postId, quantity = 1 }) => {
 };
 
 const postAddPostCartModel = async ({ cartId, postId, quantity = 1 }) => {
+  const checkQuery =
+    "SELECT * FROM post_cart WHERE id_cart = %L AND id_post = %L";
+  const formattedCheckQuery = format(checkQuery, cartId, postId);
+  const { rows: existing } = await pool.query(formattedCheckQuery);
+
+  if (existing.length > 0) {
+    return {
+      success: false,
+      message: "Este producto ya se encuentra en el carrito",
+    };
+  }
+
   const query =
     "INSERT INTO post_cart (" +
     "id_cart, " +
@@ -530,7 +542,11 @@ const postAddPostCartModel = async ({ cartId, postId, quantity = 1 }) => {
 
   const formattedQuery = format(query, cartId, postId, quantity);
   const { rows } = await pool.query(formattedQuery);
-  return rows[0];
+  return {
+    success: true,
+    data: rows[0],
+    message: "Producto agregado al carrito correctamente",
+  };
 };
 
 const updatePostCartModel = async ({ cartId, postId, quantity }) => {

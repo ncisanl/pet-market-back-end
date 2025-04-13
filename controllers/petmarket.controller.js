@@ -573,6 +573,10 @@ const postAddPostCartController = async (req, res) => {
       quantity,
     });
 
+    if (!newPostCart.success) {
+      return res.status(400).json({ message: newPostCart.message });
+    }
+
     return res.status(201).json({
       cartId: newPostCart.id_cart,
       postId: newPostCart.id_post,
