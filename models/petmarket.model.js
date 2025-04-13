@@ -342,6 +342,37 @@ const deletePostModel = async (postId) => {
   return rows[0];
 };
 
+const getPostDetailModel = async (postId) => {
+  const query =
+    "SELECT " +
+    "  p.id_post, " +
+    "  p.title, " +
+    "  p.simple_description, " +
+    "  p.full_description, " +
+    "  p.stock, " +
+    "  p.available, " +
+    "  p.creation_date AS post_creation_date, " +
+    "  p.update_date AS post_update_date, " +
+    "  pr.id_product, " +
+    "  pr.id_category, " +
+    "  pr.name AS product_name, " +
+    "  pr.brand, " +
+    "  pr.weight_kg, " +
+    "  pr.price, " +
+    "  pr.sale, " +
+    "  pr.discount_percentage, " +
+    "  ppt.id_pet_type, " +
+    "  pi.url_image " +
+    "FROM post p " +
+    "JOIN product pr ON pr.id_product = p.id_product " +
+    "LEFT JOIN product_pet_type ppt ON ppt.id_product = pr.id_product " +
+    "LEFT JOIN post_image pi ON pi.id_post = p.id_post " +
+    "WHERE p.id_post = %L";
+  const formattedQuery = format(query, postId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows[0];
+};
+
 const getPostModel = async () => {
   const query =
     "SELECT " +
@@ -594,6 +625,7 @@ export const petMarketModel = {
   postCreatePostModel,
   updatePostModel,
   deletePostModel,
+  getPostDetailModel,
   getPostModel,
   getPostCategoryPetTypeModel,
   postAddPostFavoriteModel,

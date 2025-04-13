@@ -57,6 +57,9 @@ router.delete(
   petMarketController.deletePostController,
 );
 
+// Obtener detalles de un post
+router.get("/post/:postId", petMarketController.getPostDetailController);
+
 // Obtener todos los post
 router.get("/posts", petMarketController.getPostController);
 

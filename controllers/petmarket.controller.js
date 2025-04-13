@@ -361,6 +361,41 @@ const deletePostController = async (req, res) => {
   }
 };
 
+const getPostDetailController = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await petMarketModel.getPostDetailModel(postId);
+
+    return res.status(200).json({
+      postId: post.id_post,
+      title: post.title,
+      simpleDescription: post.simple_description,
+      fullDescription: post.full_description,
+      stock: post.stock,
+      available: post.available,
+      productId: post.id_product,
+      categoryId: post.id_category,
+      productName: post.product_name,
+      brand: post.brand,
+      weightKg: post.weight_kg,
+      price: post.price,
+      sale: post.sale,
+      discountPercentage: post.discount_percentage,
+      postFavorite: post.post_favorite,
+      petType: post.id_pet_type,
+      urlImage: post.url_image,
+    });
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 const getPostController = async (req, res) => {
   try {
     const posts = await petMarketModel.getPostModel();
@@ -660,6 +695,7 @@ export const petMarketController = {
   postCreatePostController,
   updatePostController,
   deletePostController,
+  getPostDetailController,
   getPostController,
   getPostCategoryPetTypeController,
   postAddPostFavoriteController,
