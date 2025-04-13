@@ -437,30 +437,34 @@ const deletePostFavoriteModel = async (favoriteId) => {
 const getUserFavoriteModel = async (userId) => {
   const query =
     "SELECT " +
-    "f.id_favorite, " +
-    "pf.id_post, " +
-    "p.title, " +
-    "p.simple_description, " +
-    "p.full_description, " +
-    "p.stock, " +
-    "p.available, " +
-    "p.creation_date AS post_creation_date, " +
-    "p.update_date AS post_update_date, " +
-    "pr.id_product, " +
-    "pr.id_category, " +
-    "pr.name AS product_name, " +
-    "pr.brand, " +
-    "pr.weight_kg, " +
-    "pr.price, " +
-    "pr.sale, " +
-    "pr.discount_percentage, " +
-    "pf.favorite AS post_favorite, " +
-    "pf.creation_date AS pf_creation_date, " +
-    "pf.update_date AS pf_update_date " +
+    "  f.id_favorite, " +
+    "  pf.id_post, " +
+    "  p.title, " +
+    "  p.simple_description, " +
+    "  p.full_description, " +
+    "  p.stock, " +
+    "  p.available, " +
+    "  p.creation_date AS post_creation_date, " +
+    "  p.update_date AS post_update_date, " +
+    "  pr.id_product, " +
+    "  pr.id_category, " +
+    "  pr.name AS product_name, " +
+    "  pr.brand, " +
+    "  pr.weight_kg, " +
+    "  pr.price, " +
+    "  pr.sale, " +
+    "  pr.discount_percentage, " +
+    "  pf.favorite AS post_favorite, " +
+    "  pf.creation_date AS pf_creation_date, " +
+    "  pf.update_date AS pf_update_date, " +
+    "  ppt.id_pet_type, " +
+    "  pi.url_image " +
     "FROM favorite f " +
     "JOIN post_favorite pf ON pf.id_favorite = f.id_favorite " +
     "JOIN post p ON p.id_post = pf.id_post " +
     "JOIN product pr ON pr.id_product = p.id_product " +
+    "LEFT JOIN product_pet_type ppt ON ppt.id_product = pr.id_product " +
+    "LEFT JOIN post_image pi ON pi.id_post = p.id_post " +
     "WHERE f.id_user = %L";
   const formattedQuery = format(query, userId);
   const { rows } = await pool.query(formattedQuery);

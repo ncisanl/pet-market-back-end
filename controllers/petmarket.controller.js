@@ -385,7 +385,26 @@ const getPostCategoryPetTypeController = async (req, res) => {
       categoryId,
     });
 
-    return res.status(200).json(posts);
+    const postsResponse = posts.map((post) => ({
+      postId: post.id_post,
+      productId: post.id_product,
+      title: post.title,
+      simpleDescription: post.simple_description,
+      fullDescription: post.full_description,
+      stock: post.stock,
+      available: post.available,
+      urlImage: post.url_image,
+      categoryId: post.id_category,
+      productName: post.product_name,
+      brand: post.brand,
+      weightKg: post.weight_kg,
+      price: post.price,
+      sale: post.sale,
+      discountPercentage: post.discount_percentage,
+      petType: post.id_pet_type,
+    }));
+
+    return res.status(200).json(postsResponse);
   } catch (error) {
     console.log(error);
     if (error.code) {
@@ -450,7 +469,28 @@ const getUserFavoriteController = async (req, res) => {
   try {
     const postsFavorite = await petMarketModel.getUserFavoriteModel(userId);
 
-    return res.status(200).json(postsFavorite);
+    const postsFavoriteResponse = postsFavorite.map((post) => ({
+      favoriteId: post.id_favorite,
+      postId: post.id_post,
+      title: post.title,
+      simpleDescription: post.simple_description,
+      fullDescription: post.full_description,
+      stock: post.stock,
+      available: post.available,
+      productId: post.id_product,
+      categoryId: post.id_category,
+      productName: post.product_name,
+      brand: post.brand,
+      weightKg: post.weight_kg,
+      price: post.price,
+      sale: post.sale,
+      discountPercentage: post.discount_percentage,
+      postFavorite: post.post_favorite,
+      petType: post.id_pet_type,
+      urlImage: post.url_image,
+    }));
+
+    return res.status(200).json(postsFavoriteResponse);
   } catch (error) {
     console.log(error);
     if (error.code) {
