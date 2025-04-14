@@ -676,7 +676,29 @@ const getCartPostController = async (req, res) => {
   try {
     const cartPosts = await petMarketModel.getCartPostModel(userId);
 
-    return res.status(200).json(cartPosts);
+    const cartPostsResponse = cartPosts.map((post) => ({
+      cartId: post.id_cart,
+      userId: post.id_user,
+      postId: post.id_post,
+      quantity: post.quantity,
+      title: post.title,
+      simpleDescription: post.simple_description,
+      fullDescription: post.full_description,
+      stock: post.stock,
+      available: post.available,
+      productId: post.id_product,
+      categoryId: post.id_category,
+      productName: post.product_name,
+      brand: post.brand,
+      weightKg: post.weight_kg,
+      price: post.price,
+      sale: post.sale,
+      discountPercentage: post.discount_percentage,
+      petType: post.id_pet_type,
+      urlImage: post.url_image,
+    }));
+
+    return res.status(200).json(cartPostsResponse);
   } catch (error) {
     console.log(error);
     if (error.code) {
