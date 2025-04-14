@@ -70,7 +70,14 @@ router.get(
 );
 
 // Obtener todos los post de un usuario
-router.get("/my-posts", authMiddleware, petMarketController.getMyPostsController);
+router.get(
+  "/my-posts",
+  authMiddleware,
+  petMarketController.getMyPostsController,
+);
+
+// Obtener todos los post con ofertas
+router.get("/posts/sale", petMarketController.getPostsSaleController);
 
 // Agregar favorito
 router.post(

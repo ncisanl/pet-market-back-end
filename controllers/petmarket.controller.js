@@ -411,6 +411,45 @@ const getPostController = async (req, res) => {
   }
 };
 
+const getPostCategoryPetTypeController = async (req, res) => {
+  const { petTypeId, categoryId } = req.params;
+
+  try {
+    const posts = await petMarketModel.getPostCategoryPetTypeModel({
+      petTypeId,
+      categoryId,
+    });
+
+    const postsResponse = posts.map((post) => ({
+      postId: post.id_post,
+      productId: post.id_product,
+      title: post.title,
+      simpleDescription: post.simple_description,
+      fullDescription: post.full_description,
+      stock: post.stock,
+      available: post.available,
+      urlImage: post.url_image,
+      categoryId: post.id_category,
+      productName: post.product_name,
+      brand: post.brand,
+      weightKg: post.weight_kg,
+      price: post.price,
+      sale: post.sale,
+      discountPercentage: post.discount_percentage,
+      petType: post.id_pet_type,
+    }));
+
+    return res.status(200).json(postsResponse);
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 const getMyPostsController = async (req, res) => {
   const { userId } = req.user;
 
@@ -447,16 +486,11 @@ const getMyPostsController = async (req, res) => {
   }
 };
 
-const getPostCategoryPetTypeController = async (req, res) => {
-  const { petTypeId, categoryId } = req.params;
-
+const getPostsSaleController = async (req, res) => {
   try {
-    const posts = await petMarketModel.getPostCategoryPetTypeModel({
-      petTypeId,
-      categoryId,
-    });
+    const postsSale = await petMarketModel.getPostsSaleModel();
 
-    const postsResponse = posts.map((post) => ({
+    const postsSaleResponse = postsSale.map((post) => ({
       postId: post.id_post,
       productId: post.id_product,
       title: post.title,
@@ -475,7 +509,7 @@ const getPostCategoryPetTypeController = async (req, res) => {
       petType: post.id_pet_type,
     }));
 
-    return res.status(200).json(postsResponse);
+    return res.status(200).json(postsSaleResponse);
   } catch (error) {
     console.log(error);
     if (error.code) {
@@ -759,8 +793,9 @@ export const petMarketController = {
   deletePostController,
   getPostDetailController,
   getPostController,
-  getMyPostsController,
   getPostCategoryPetTypeController,
+  getMyPostsController,
+  getPostsSaleController,
   postAddPostFavoriteController,
   deletePostFavoriteController,
   getUserFavoriteController,

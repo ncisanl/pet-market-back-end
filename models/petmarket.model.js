@@ -402,6 +402,37 @@ const getPostModel = async () => {
   return rows;
 };
 
+const getPostCategoryPetTypeModel = async ({ petTypeId, categoryId }) => {
+  const query =
+    "SELECT " +
+    "p.id_post, " +
+    "p.id_product, " +
+    "p.title, " +
+    "p.simple_description, " +
+    "p.full_description, " +
+    "p.stock, " +
+    "p.available, " +
+    "pi.url_image, " +
+    "pr.id_category, " +
+    "pr.name AS product_name, " +
+    "pr.brand, " +
+    "pr.weight_kg, " +
+    "pr.price, " +
+    "pr.sale, " +
+    "pr.discount_percentage, " +
+    "ppt.id_pet_type " +
+    "FROM post p " +
+    "JOIN product pr ON pr.id_product = p.id_product " +
+    "JOIN post_image pi ON pi.id_post = p.id_post " +
+    "JOIN product_pet_type ppt ON ppt.id_product = p.id_product " +
+    "WHERE ppt.id_pet_type = %L " +
+    "AND pr.id_category = %L";
+
+  const formattedQuery = format(query, petTypeId, categoryId);
+  const { rows } = await pool.query(formattedQuery);
+  return rows;
+};
+
 const getMyPostsModel = async (userId) => {
   const query =
     "SELECT " +
@@ -431,33 +462,32 @@ const getMyPostsModel = async (userId) => {
   return rows;
 };
 
-const getPostCategoryPetTypeModel = async ({ petTypeId, categoryId }) => {
+const getPostsSaleModel = async () => {
   const query =
     "SELECT " +
-    "p.id_post, " +
-    "p.id_product, " +
-    "p.title, " +
-    "p.simple_description, " +
-    "p.full_description, " +
-    "p.stock, " +
-    "p.available, " +
-    "pi.url_image, " +
-    "pr.id_category, " +
-    "pr.name AS product_name, " +
-    "pr.brand, " +
-    "pr.weight_kg, " +
-    "pr.price, " +
-    "pr.sale, " +
-    "pr.discount_percentage, " +
-    "ppt.id_pet_type " +
+    "  p.id_post, " +
+    "  p.id_product, " +
+    "  p.title, " +
+    "  p.simple_description, " +
+    "  p.full_description, " +
+    "  p.stock, " +
+    "  p.available, " +
+    "  pi.url_image, " +
+    "  pr.id_category, " +
+    "  pr.name AS product_name, " +
+    "  pr.brand, " +
+    "  pr.weight_kg, " +
+    "  pr.price, " +
+    "  pr.sale, " +
+    "  pr.discount_percentage, " +
+    "  ppt.id_pet_type " +
     "FROM post p " +
     "JOIN product pr ON pr.id_product = p.id_product " +
     "JOIN post_image pi ON pi.id_post = p.id_post " +
     "JOIN product_pet_type ppt ON ppt.id_product = p.id_product " +
-    "WHERE ppt.id_pet_type = %L " +
-    "AND pr.id_category = %L";
+    "WHERE pr.sale = true";
 
-  const formattedQuery = format(query, petTypeId, categoryId);
+  const formattedQuery = format(query);
   const { rows } = await pool.query(formattedQuery);
   return rows;
 };
@@ -672,8 +702,9 @@ export const petMarketModel = {
   deletePostModel,
   getPostDetailModel,
   getPostModel,
-  getMyPostsModel,
   getPostCategoryPetTypeModel,
+  getMyPostsModel,
+  getPostsSaleModel,
   postAddPostFavoriteModel,
   deletePostFavoriteModel,
   getUserFavoriteModel,
