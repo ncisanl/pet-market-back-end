@@ -69,6 +69,9 @@ router.get(
   petMarketController.getPostCategoryPetTypeController,
 );
 
+// Obtener todos los post de un usuario
+router.get("/my-posts", authMiddleware, petMarketController.getMyPostsController);
+
 // Agregar favorito
 router.post(
   "/favorite",

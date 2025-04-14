@@ -385,7 +385,7 @@ const getPostModel = async () => {
     "p.available, " +
     "pi.url_image, " +
     "pr.id_category, " +
-    "pr.name AS name, " +
+    "pr.name AS product_name, " +
     "pr.brand, " +
     "pr.weight_kg, " +
     "pr.price, " +
@@ -398,6 +398,35 @@ const getPostModel = async () => {
     "JOIN product_pet_type ppt ON ppt.id_product = p.id_product";
 
   const formattedQuery = format(query);
+  const { rows } = await pool.query(formattedQuery);
+  return rows;
+};
+
+const getMyPostsModel = async (userId) => {
+  const query =
+    "SELECT " +
+    "  p.id_post, " +
+    "  p.id_product, " +
+    "  p.title, " +
+    "  p.simple_description, " +
+    "  p.full_description, " +
+    "  p.stock, " +
+    "  p.available, " +
+    "  pi.url_image, " +
+    "  pr.id_category, " +
+    "  pr.name AS product_name, " +
+    "  pr.brand, " +
+    "  pr.weight_kg, " +
+    "  pr.price, " +
+    "  pr.sale, " +
+    "  pr.discount_percentage, " +
+    "  ppt.id_pet_type " +
+    "FROM post p " +
+    "JOIN product pr ON pr.id_product = p.id_product " +
+    "JOIN post_image pi ON pi.id_post = p.id_post " +
+    "JOIN product_pet_type ppt ON ppt.id_product = p.id_product " +
+    "WHERE p.id_user = %L";
+  const formattedQuery = format(query, userId);
   const { rows } = await pool.query(formattedQuery);
   return rows;
 };
@@ -643,6 +672,7 @@ export const petMarketModel = {
   deletePostModel,
   getPostDetailModel,
   getPostModel,
+  getMyPostsModel,
   getPostCategoryPetTypeModel,
   postAddPostFavoriteModel,
   deletePostFavoriteModel,

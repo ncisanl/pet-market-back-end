@@ -411,6 +411,42 @@ const getPostController = async (req, res) => {
   }
 };
 
+const getMyPostsController = async (req, res) => {
+  const { userId } = req.user;
+
+  try {
+    const myPosts = await petMarketModel.getMyPostsModel(userId);
+
+    const myPostsResponse = myPosts.map((post) => ({
+      postId: post.id_post,
+      title: post.title,
+      simpleDescription: post.simple_description,
+      fullDescription: post.full_description,
+      stock: post.stock,
+      available: post.available,
+      productId: post.id_product,
+      categoryId: post.id_category,
+      productName: post.product_name,
+      brand: post.brand,
+      weightKg: post.weight_kg,
+      price: post.price,
+      sale: post.sale,
+      discountPercentage: post.discount_percentage,
+      petType: post.id_pet_type,
+      urlImage: post.url_image,
+    }));
+
+    return res.status(200).json(myPostsResponse);
+  } catch (error) {
+    console.log(error);
+    if (error.code) {
+      const { code, message } = getDatabaseError(error.code);
+      return res.status(code).json({ message });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 const getPostCategoryPetTypeController = async (req, res) => {
   const { petTypeId, categoryId } = req.params;
 
@@ -723,6 +759,7 @@ export const petMarketController = {
   deletePostController,
   getPostDetailController,
   getPostController,
+  getMyPostsController,
   getPostCategoryPetTypeController,
   postAddPostFavoriteController,
   deletePostFavoriteController,
